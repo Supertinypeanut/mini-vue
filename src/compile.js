@@ -84,18 +84,7 @@ class Compile {
 
   // 解析文本节点
   compileText(node) {
-    // 获取节点文本内容
-    const text = node.textContent
-    // 创建校验插值表达式的正则
-    const reg = /\{\{(.+)\}\}/
-    if (reg.test(text)) {
-      // 获取插值中需要解析的文本
-      const key = RegExp.$1
-      // 获取对应data中的值
-      const data = CompileUtil.processValue(this.vm,key)
-      // 替换插值
-      node.textContent = text.replace(reg,data)
-    }
+    CompileUtil.mustach(node,this.vm)
   }
 
 
@@ -130,15 +119,45 @@ class Compile {
 
 // 对指令解析实现抽离,成一个工具对象
 let CompileUtil = {
+  // 插值
+  mustach(node, vm){
+    // 获取节点文本内容
+    const text = node.textContent
+    // 创建校验插值表达式的正则
+    const reg = /\{\{(.+)\}\}/
+    if (reg.test(text)) {
+      // 获取插值中需要解析的文本
+      const key = RegExp.$1
+      // 获取对应data中的值
+      const data = CompileUtil.processValue(vm,key)
+      // 替换插值
+      node.textContent = text.replace(reg,data)
+    
+      new Watcher(vm, key, (newValue, oldValue) => {
+        node.textContent = newValue
+      })
+    }
+  },
+
   // 普通指令
   text(node, vm, key){
     node.innerText = this.processValue(vm,key)
+    // 创建观察者，数据变化，更新模版数据
+    new Watcher(vm, key, (newValue, oldValue) => {
+      node.innerText = newValue
+    })
   },
   html(node, vm, key){
     node.innerHtml = this.processValue(vm,key)
+    new Watcher(vm, key, (newValue, oldValue) => {
+      node.innerHtml = newValue
+    })
   },
   model(node, vm, key){
     node.value = this.processValue(vm,key)
+    new Watcher(vm, key, (newValue, oldValue) => {
+      node.value = newValue
+    })
   },
 
   // 事件指令

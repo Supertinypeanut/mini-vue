@@ -27,14 +27,28 @@ class Observer{
 
   // 劫持属性
   observer(data, key, value){
+    let that = this
+    // 创建订阅发布者对象
+    let dep = new Dep()
     Object.defineProperty(data, key,{
       enumerable:true,  // 可枚举
       configurable:true,  // 可更改
       get(){
+        // 如果Dep.target中有watcher对象，存储到订阅者数组中
+        Dep.target && dep.addSubs(Dep.target)
         return value
       },
       set(newValue){
+        // 数据未修改则不更新
+        if (value === newValue) {
+          return
+        }
         value = newValue
+
+        // 避免修改的数据为复杂数据类型
+        that.walk(newValue)
+        // 发布通知，让所有的订阅者更新内容
+        dep.notify()
       }
     })
   }

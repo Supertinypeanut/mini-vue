@@ -12,7 +12,7 @@ class Watcher{
     // 存储旧值
     this.oldValue = this.processValue(vm, key)
     // 清空Dep.target
-    Dep.target = null
+    // Dep.target = null
   }
 
   update(){
@@ -55,7 +55,7 @@ class Dep{
   // 通知订阅者
   notify(){
     this.subs.forEach(sub => {
-      sub.updata()
+      sub.update()
     })
   }
 }
