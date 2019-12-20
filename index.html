@@ -10,8 +10,12 @@
 
 <body>
   <div id="app">
-    <p>{{msg}}</p>
+    <p>我是msg：{{msg}}</p>
+    <p>我是num：{{num}}</p>
+    <p>我是复杂数据：{{body.footer}}</p>
     <p v-text="msg"></p>
+    <p v-text="body.head"></p>
+    <p v-text="body.name.age"></p>
     <input type="text" v-model="msg">
     <button type="submit" v-on:click="onClick">按钮</button>
   </div>
@@ -22,7 +26,15 @@
     const vm = new Vue({
       el: "#app",
       data: {
-        msg: "Hi Peanut"
+        msg: "Hi Peanut",
+        num: 18,
+        body:{
+          head:'head',
+          footer: 'footer',
+          name:{
+            age:10
+          }
+        }
       },
       methods: {
         onClick(){

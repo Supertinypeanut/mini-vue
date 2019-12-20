@@ -5,9 +5,10 @@
 class Compile {
   constructor(el, vm) {
     // Vue中el是可以直接传节点
-    this.el = typeof el === 'string' ? document.querySelector(el) : el,
-      this.vm = vm
+    this.el = typeof el === 'string' ? document.querySelector(el) : el
+    this.vm = vm
 
+    // 对节点进行判断是否存在
     if (this.el) {
       // 把el所有节点放入
       const fragment = this.nodeToFragment(this.el)
@@ -42,7 +43,7 @@ class Compile {
       }
 
       // 节点为文本节点（解析插值{{}}）
-      if (this.isTextNode) {
+      if (this.isTextNode(node)) {
         // 解析插值
         this.compileText(node)
       }
@@ -83,7 +84,18 @@ class Compile {
 
   // 解析文本节点
   compileText(node) {
-
+    // 获取节点文本内容
+    const text = node.textContent
+    // 创建校验插值表达式的正则
+    const reg = /\{\{(.+)\}\}/
+    if (reg.test(text)) {
+      // 获取插值中需要解析的文本
+      const key = RegExp.$1
+      // 获取对应data中的值
+      const data = CompileUtil.processValue(this.vm,key)
+      // 替换插值
+      node.textContent = text.replace(reg,data)
+    }
   }
 
 
@@ -101,7 +113,7 @@ class Compile {
 
   // 是否是文本节点
   isTextNode(node) {
-    return node.typeNode === 3
+    return node.nodeType === 3
   }
 
   // 是否是v-开头
@@ -119,26 +131,38 @@ class Compile {
 // 对指令解析实现抽离,成一个工具对象
 let CompileUtil = {
   // 普通指令
-  text(node, vm, value){
-    node.innerText = vm.$data[value]
+  text(node, vm, key){
+    node.innerText = this.processValue(vm,key)
   },
-  html(node, vm, value){
-    node.innerHtml = vm.$data[value]
+  html(node, vm, key){
+    node.innerHtml = this.processValue(vm,key)
   },
-  model(node, vm, value){
-    node.value = vm.$data[value]
+  model(node, vm, key){
+    node.value = this.processValue(vm,key)
   },
 
   // 事件指令
-  eventHandle(node,vm,value,type){
+  eventHandle(node,vm,key,type){
     // 对是绑定方法是否存在进行捕获判断
     try {
       // 获取事件类型
       const eventType = type.split(':')[1]
       // 给当前元素注册事件,并且需要改变其this指向
-      node.addEventListener(eventType,vm.$methods[value].bind(vm))
+      node.addEventListener(eventType,vm.$methods[key].bind(vm))
     } catch (error) {
       throw Error('检查事件方法是否在methods中定义')
     }
+  },
+
+  // 处理复杂数据
+  processValue(vm, key){
+    // 获取data中的数据对象
+    let data = vm.$data
+    // 处理插值中复杂数据
+    key.split('.').forEach(key => {
+      // 获取插值对应的data数据(正则分组)
+      data = data[key]
+    })
+    return data
   }
 }
