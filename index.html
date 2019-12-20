@@ -12,6 +12,8 @@
   <div id="app">
     <p>{{msg}}</p>
     <p v-text="msg"></p>
+    <input type="text" v-model="msg">
+    <button type="submit" v-on:click="onClick">按钮</button>
   </div>
 
   <script src="./src/compile.js"></script>
@@ -21,6 +23,11 @@
       el: "#app",
       data: {
         msg: "Hi Peanut"
+      },
+      methods: {
+        onClick(){
+          console.log('我是v-ons')
+        } 
       }
     })
   </script>

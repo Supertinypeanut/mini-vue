@@ -63,18 +63,30 @@ class Compile {
       const attrName = attr.name
         // 获取属性值
       const value = attr.value
-      console.log(value)
 
       // 判断是否是指令 （v-）
       if (this.isDirective(attrName)) {
-        if (attrName.slice(2) === 'text') {
-          // 为指令v-text节点内添值
+        // 提取指令
+        const type = attrName.slice(2)
+
+        // 为指令v-text节点内添值
+        if (type === 'text') {
           node.innerText = this.vm.$data[value]
         }
 
-        if (attrName.slice(2) === 'html') {
-          // 为指令v-html节点内添值
+        // 为指令v-html节点内添值
+        if (type === 'html') {
           node.innerHtml = this.vm.$data[value]
+        }
+
+        // 解析v-modle指令
+        if(type === 'model'){
+          node.value = this.vm.$data[value]
+        }
+
+        //解析v-on:Event指令
+        if (this.isEventDirective(type)) {
+          node.addEventListener(type.split(':')[1],this.vm.$methods[value])
         }
       }
     })
@@ -106,6 +118,11 @@ class Compile {
   // 是否是v-开头
   isDirective(nodeName) {
     return nodeName.startsWith('v-')
+  }
+
+  // 是否是事件指令
+  isEventDirective(type){
+    return type.split(':')[0] === 'on'
   }
 
 }
