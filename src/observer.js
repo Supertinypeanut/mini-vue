@@ -31,7 +31,6 @@ class Observer{
       enumerable:true,  // 可枚举
       configurable:true,  // 可更改
       get(){
-        console.log(12)
         return value
       },
       set(newValue){
