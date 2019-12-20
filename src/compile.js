@@ -69,24 +69,13 @@ class Compile {
         // 提取指令
         const type = attrName.slice(2)
 
-        // 为指令v-text节点内添值
-        if (type === 'text') {
-          node.innerText = this.vm.$data[value]
-        }
-
-        // 为指令v-html节点内添值
-        if (type === 'html') {
-          node.innerHtml = this.vm.$data[value]
-        }
-
-        // 解析v-modle指令
-        if(type === 'model'){
-          node.value = this.vm.$data[value]
-        }
-
-        //解析v-on:Event指令
+        //解析指令
         if (this.isEventDirective(type)) {
-          node.addEventListener(type.split(':')[1],this.vm.$methods[value])
+          // 解析事件指令
+          CompileUtil.eventHandle(node,this.vm,value,type)
+        }else{
+          // 解析普通指令
+          CompileUtil[type](node, this.vm, value)
         }
       }
     })
@@ -125,4 +114,31 @@ class Compile {
     return type.split(':')[0] === 'on'
   }
 
+}
+
+// 对指令解析实现抽离,成一个工具对象
+let CompileUtil = {
+  // 普通指令
+  text(node, vm, value){
+    node.innerText = vm.$data[value]
+  },
+  html(node, vm, value){
+    node.innerHtml = vm.$data[value]
+  },
+  model(node, vm, value){
+    node.value = vm.$data[value]
+  },
+
+  // 事件指令
+  eventHandle(node,vm,value,type){
+    // 对是绑定方法是否存在进行捕获判断
+    try {
+      // 获取事件类型
+      const eventType = type.split(':')[1]
+      // 给当前元素注册事件,并且需要改变其this指向
+      node.addEventListener(eventType,vm.$methods[value].bind(vm))
+    } catch (error) {
+      throw Error('检查事件方法是否在methods中定义')
+    }
+  }
 }
