@@ -17,5 +17,28 @@ class Vue {
       new Compile(this.$el, this)
     }
 
+    // 将data属性代理到Vue实例上
+    this.proxy(this.$data) 
+    // 将methods属性代理到Vue实例上
+    this.proxy(this.$methods) 
+  }
+
+  // 因为Observer已经对data内部数据进行代理了，所以只需要将data代理到实例上即可
+  proxy(data) {
+    Object.keys(data).forEach(key => {
+      Object.defineProperty(this, key, {
+        enumerable: true,
+        configurable: true,
+        get() {
+          return data[key]
+        },
+        set(newValue) {
+          if (data[key] == newValue) {
+            return
+          }
+          data[key] = newValue
+        }
+      })
+    })
   }
 }

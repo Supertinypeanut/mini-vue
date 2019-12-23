@@ -124,7 +124,7 @@ let CompileUtil = {
     // 获取节点文本内容
     const text = node.textContent
     // 创建校验插值表达式的正则
-    const reg = /\{\{(.+)\}\}/
+    const reg = /\{\{(.+)\}\}/g
     if (reg.test(text)) {
       // 获取插值中需要解析的文本
       const key = RegExp.$1
@@ -167,7 +167,7 @@ let CompileUtil = {
       const keys = key.split('.')
       // data数据
       let data = vm.$data
-      
+
       // 解决是复杂数据问题
       keys.forEach((item, index) => {
         // 当到最后一项，进行赋值
