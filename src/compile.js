@@ -158,6 +158,26 @@ let CompileUtil = {
     new Watcher(vm, key, (newValue, oldValue) => {
       node.value = newValue
     })
+
+    // 给节点加input事件，实现双向数据绑定
+    node.addEventListener('input',(e)=>{
+      // 获取文本框内容
+      const value = e.target.value
+      // 获取属性key的数组
+      const keys = key.split('.')
+      // data数据
+      let data = vm.$data
+      
+      // 解决是复杂数据问题
+      keys.forEach((item, index) => {
+        // 当到最后一项，进行赋值
+        if (index === keys.length - 1) {
+          data[item] = value
+          return 
+        }
+        data = data[item]
+      })
+    })
   },
 
   // 事件指令

@@ -20,7 +20,7 @@ class Observer{
     Object.keys(data).forEach(key => {
       this.observer(data, key, data[key])
 
-      // 对属性进行
+      // 对属性进行代理
       this.walk(data[key])
     })
   }
@@ -43,6 +43,7 @@ class Observer{
         if (value === newValue) {
           return
         }
+
         value = newValue
 
         // 避免修改的数据为复杂数据类型

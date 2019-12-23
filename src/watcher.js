@@ -6,13 +6,12 @@ class Watcher{
     this.vm = vm  // 当前vm实例
     this.key = key  // data中的属性名
     this.cb = cb  // 数据改变时触发的回调
-    
     // 将当前监视者实例载到构造函数上
     Dep.target = this
     // 存储旧值
     this.oldValue = this.processValue(vm, key)
     // 清空Dep.target
-    // Dep.target = null
+    Dep.target = null
   }
 
   update(){
